@@ -139,17 +139,9 @@ let run_cycle t =
       set_execution_context t execution_context;
       (* [Job.run] may raise, in which case the exn is handled by [Jobs.run_all]. *)
       (* Add in here Pa_event support to trace the execution within async *)
-      begin match id with 
-	| None -> ()
-	| Some id -> 
-	  Pa_event.event_start (sprintf "event: %d" id)
-      end;
+      Option.iter id ~f:(fun id -> Pa_event.event_start (sprintf "_async %d" id));
       Job.run job;
-      begin match id with 
-	| None -> ()
-	| Some id ->
-	  Pa_event.event_end (sprintf "event: %d" id)
-      end;      
+      Option.iter id ~f:(fun id -> Pa_event.event_end (sprintf "_async %d" id));
       if debug_run_job then
         Debug.log "finished running job"
           execution_context.Execution_context.backtrace_history
