@@ -63,7 +63,7 @@ Library async_core
                       Unregister
   BuildDepends:       bin_prot,
                       bin_prot.syntax,
-                      core,
+                      core, pa_event,
                       fieldslib,
                       fieldslib.syntax,
                       pa_ounit,
@@ -77,7 +77,7 @@ Library async_core
                       pa_ounit,
                       fieldslib,
                       bin_prot,
-                      core,
+                      core, pa_event,
                       threads,
                       herelib
 
