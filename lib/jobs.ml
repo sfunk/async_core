@@ -54,6 +54,7 @@ end = struct
   let run_all t f =
     (* We do the [try-with] outside of the [while] because it is cheaper than doing
        a [try-with] for each job. *)
+    let id = ref None in
     try
       while can_run_a_job t do
         let job = Q.dequeue_front_exn t.jobs in
@@ -62,10 +63,17 @@ end = struct
            take [job] out of the queue and decrement [jobs_left_this_cycle].
 
            [f] may side effect [t], either by adding new jobs, or by clearing [t]. *)
+
+	id := Execution_context.find_local (Job.execution_context job) Pa_event.key;	
+	Option.iter !id ~f:(fun id -> Pa_event.event_start (sprintf "_async %d" id)); 
         f job;
+	Option.iter !id ~f:(fun id -> Pa_event.event_end (sprintf "_async %d" id)); 
       done;
       Result.ok_unit
-    with exn -> Error exn
+    with exn -> 
+      (* On exception need to end last event *) 
+      Option.iter !id ~f:(fun id -> Pa_event.event_end (sprintf "_async %d" id));
+      Error exn
   ;;
 end
 
