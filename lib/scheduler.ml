@@ -130,18 +130,16 @@ let run_cycle t =
           execution_context.Execution_context.backtrace_history
           (<:sexp_of< Backtrace.t list >>);
     end else begin
-      let id = Execution_context.find_local execution_context Pa_event.key in
       if debug_run_job then
-        Debug.log (sprintf "running job %d" (Option.value id ~default:(-1) ))
+        Debug.log "running job"
           execution_context.Execution_context.backtrace_history
           (<:sexp_of< Backtrace.t list >>);
       t.num_jobs_run <- t.num_jobs_run + 1;
       set_execution_context t execution_context;
       (* [Job.run] may raise, in which case the exn is handled by [Jobs.run_all]. *)
-      (* Add in here Pa_event support to trace the execution within async *)
-(*      Option.iter id ~f:(fun id -> Pa_event.event_start (sprintf "_async %d" id)); *)
+      (* This is called from [Jobs.run_all] which handles exceptions,
+	 Pa_event records are created in there *)
       Job.run job;
-(*      Option.iter id ~f:(fun id -> Pa_event.event_end (sprintf "_async %d" id)); *)
       if debug_run_job then
         Debug.log "finished running job"
           execution_context.Execution_context.backtrace_history
