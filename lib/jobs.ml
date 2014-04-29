@@ -64,10 +64,14 @@ end = struct
 
            [f] may side effect [t], either by adding new jobs, or by clearing [t]. *)
 	(* Add in Pa_event support here *)
-	id := Execution_context.find_local (Job.execution_context job) Pa_event.key;	
-	Option.iter !id  ~f:(fun id -> Pa_event.event_start (sprintf "_async %d" id)); 
+	id := Execution_context.find_local (Job.execution_context job) Pa_event.key;
+	Option.iter !id  ~f:(fun id -> 
+	  Pa_event.event_start (sprintf "_async %d" id) ~location:"DUMMY"
+	) ; 
         f job;
-	Option.iter !id ~f:(fun id -> Pa_event.event_end (sprintf "_async %d" id)); 
+	Option.iter !id ~f:(fun id -> 
+	  Pa_event.event_end (sprintf "_async %d" id)
+	);
       done;
       Result.ok_unit
     with exn -> 
